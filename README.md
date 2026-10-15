@@ -40,6 +40,7 @@ La documentación se encuentra organizada y enlazada de forma modular dentro de 
 | **Actividad 3** | [`docs/actividad3/ADR-001-estilo-arquitectonico.md`](docs/actividad3/ADR-001-estilo-arquitectonico.md) | **ADR-001:** Selección del Estilo Arquitectónico (Monolito Modular Hexagonal vs Microservicios vs Capas tradicionales). |
 | **Actividad 3** | [`docs/actividad3/ADR-002-consistencia-cupos-inscripciones.md`](docs/actividad3/ADR-002-consistencia-cupos-inscripciones.md) | **ADR-002:** Estrategia para Mantener la Consistencia de Cupos e Idempotencia (Bloqueo Pesimista `FOR UPDATE` + Idempotency-Key). |
 | **Actividad 3** | [`docs/actividad3/ADR-003-integracion-resiliencia-sistema-legado.md`](docs/actividad3/ADR-003-integracion-resiliencia-sistema-legado.md) | **ADR-003:** Estrategia de Integración Desacoplada y Tolerancia a Fallas del Sistema Legado (Transactional Outbox + Circuit Breaker + Snapshot). |
+| **Actividad 3** | [`docs/actividad3/ADR-004-rendimiento-cache-multinivel.md`](docs/actividad3/ADR-004-rendimiento-cache-multinivel.md) | **ADR-004:** Estrategia de Rendimiento — Caché Multinivel L1/L2 con Réplica de Lectura para satisfacer SLA de latencia bajo 1.200 usuarios concurrentes (DRV-03, C01, C02). |
 | **Actividad 4** | [`docs/actividad4.md`](docs/actividad4.md) | **Tácticas Arquitectónicas:** Cuatro tácticas técnicas detalladas con funcionamiento, costos/beneficios y mecanismos de validación empírica (Toxiproxy, k6, testing unitario). |
 | **Actividad 5** | [`docs/actividad5.md`](docs/actividad5.md) | **Gobernanza de Arquitectura:** Modelo RACI para 4 devs y 1 admin, 3 reglas arquitectónicas obligatorias, ciclo de vida de ADRs, gestión de deuda técnica y checklist de Pull Requests. |
 | **CI / CD** | [`.github/workflows/arch-governance.yml`](.github/workflows/arch-governance.yml)<br/>[`.github/workflows/test-pipeline.yml`](.github/workflows/test-pipeline.yml) | Automatización en GitHub Actions para verificar pureza hexagonal, integridad de ADRs y testing con cobertura $\ge 80\%$. |
@@ -92,4 +93,6 @@ git log --oneline
 - `15d5bf2` `docs(actividad3): registros de decisiones arquitectonicas (ADR-001, ADR-002, ADR-003)`
 - `d7f661e` `docs(actividad4): seleccion y validacion de tacticas arquitectonicas verificables`
 - `b69993f` `docs(actividad5): gobernanza de arquitectura, automatizacion CI y checklists de PR`
-- *(Commit de consolidación y cierre de README)*
+- `359570e` `docs: consolidacion de README con resumen ejecutivo e integracion de actividades`
+- `1b10242` `fix(diagrams): sanitizacion exhaustiva de sintaxis mermaid en todas las actividades`
+- `12195e4` `fix(diagrams): convert all stateDiagram-v2 and classDiagram to flowchart`
