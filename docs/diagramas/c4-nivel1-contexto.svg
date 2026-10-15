@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 650" width="100%" height="100%">
+  <defs>
+    <style>
+      .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 22px; font-weight: bold; fill: #1a202c; }
+      .subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; fill: #718096; }
+      .box-user { fill: #08427b; stroke: #052c52; stroke-width: 2; rx: 8; }
+      .box-system { fill: #1168bd; stroke: #0b4884; stroke-width: 2; rx: 8; }
+      .box-external { fill: #6c757d; stroke: #495057; stroke-width: 2; rx: 8; }
+      .text-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 15px; font-weight: bold; fill: #ffffff; text-anchor: middle; }
+      .text-type { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #e2e8f0; text-anchor: middle; }
+      .text-desc { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #ffffff; text-anchor: middle; }
+      .line { stroke: #4a5568; stroke-width: 2; stroke-dasharray: 4,4; }
+      .line-solid { stroke: #2b6cb0; stroke-width: 2.5; marker-end: url(#arrow); }
+      .line-label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #2d3748; background: #ffffff; text-anchor: middle; }
+      .legend-text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #4a5568; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <marker id="arrow-ext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6c757d"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1000" height="650" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="50" y="40" class="title">C4 Model: Nivel 1 - Diagrama de Contexto de Sistema</text>
+  <text x="50" y="60" class="subtitle">Plataforma de Inscripción Académica (PIA) - Universidad de La Salle | Estudiante: Andrés Luengas Sánchez</text>
+
+  <!-- Boundaries & Groups -->
+  <rect x="300" y="140" width="400" height="380" fill="#edf2f7" stroke="#cbd5e0" stroke-width="2" rx="12" stroke-dasharray="6,6"/>
+  <text x="500" y="165" font-family="'Segoe UI', Arial, sans-serif" font-size="13px" font-weight="bold" fill="#4a5568" text-anchor: middle;">Límite Institucional: Universidad de La Salle</text>
+
+  <!-- ACTORS (Left) -->
+  <!-- Estudiante -->
+  <rect x="50" y="180" width="180" height="100" class="box-user"/>
+  <text x="140" y="215" class="text-title">Estudiante</text>
+  <text x="140" y="230" class="text-type">[Persona / Usuario]</text>
+  <text x="140" y="250" class="text-desc">Estudiante activo de pregrado</text>
+  <text x="140" y="265" class="text-desc">(24.000 estudiantes / 5 facultades)</text>
+
+  <!-- Coordinador / Administrador -->
+  <rect x="50" y="360" width="180" height="100" class="box-user"/>
+  <text x="140" y="395" class="text-title">Coordinador Académico</text>
+  <text x="140" y="410" class="text-type">[Persona / Usuario]</text>
+  <text x="140" y="430" class="text-desc">Supervisa la oferta, cupos</text>
+  <text x="140" y="445" class="text-desc">y excepciones del período</text>
+
+  <!-- MAIN SYSTEM (Center) -->
+  <rect x="350" y="220" width="300" height="190" class="box-system"/>
+  <text x="500" y="260" class="text-title" font-size="17px">Plataforma de Inscripción</text>
+  <text x="500" y="280" class="text-title" font-size="17px">Académica (PIA)</text>
+  <text x="500" y="300" class="text-type">[Sistema de Software Central]</text>
+  <text x="500" y="325" class="text-desc">Permite a los estudiantes consultar oferta,</text>
+  <text x="500" y="342" class="text-desc">inscribir asignaturas con validación atómica</text>
+  <text x="500" y="359" class="text-desc">de cupos, horarios y sincronización</text>
+  <text x="500" y="376" class="text-desc">resiliente con el sistema legado.</text>
+
+  <!-- EXTERNAL SYSTEMS (Right) -->
+  <!-- Sistema Académico Legado -->
+  <rect x="760" y="160" width="190" height="110" class="box-external"/>
+  <text x="855" y="195" class="text-title">Sistema Académico Legado</text>
+  <text x="855" y="210" class="text-type">[Sistema Externo - 12 años]</text>
+  <text x="855" y="230" class="text-desc">Fuente oficial de historial,</text>
+  <text x="855" y="245" class="text-desc">prerrequisitos y mallas.</text>
+  <text x="855" y="260" class="text-desc">Sujeto a cortes de hasta 40 min.</text>
+
+  <!-- Proveedor de Identidad / Directorio Activo -->
+  <rect x="760" y="300" width="190" height="90" class="box-external"/>
+  <text x="855" y="330" class="text-title">SSO / Directorio Activo</text>
+  <text x="855" y="345" class="text-type">[Sistema Externo Institucional]</text>
+  <text x="855" y="365" class="text-desc">Autenticación centralizada</text>
+  <text x="855" y="380" class="text-desc">LDAP / OAuth2 institucional.</text>
+
+  <!-- Sistema de Notificaciones -->
+  <rect x="760" y="420" width="190" height="90" class="box-external"/>
+  <text x="855" y="450" class="text-title">Servicio Notificaciones</text>
+  <text x="855" y="465" class="text-type">[Sistema Externo Institucional]</text>
+  <text x="855" y="485" class="text-desc">Envío de confirmaciones por</text>
+  <text x="855" y="500" class="text-desc">correo institucional (SMTP).</text>
+
+  <!-- RELATIONSHIPS -->
+  <!-- Estudiante -> PIA -->
+  <line x1="230" y1="230" x2="350" y2="280" class="line-solid"/>
+  <rect x="235" y="240" width="105" height="30" fill="#ffffff" rx="4" stroke="#cbd5e0"/>
+  <text x="287" y="253" class="line-label">Consulta catálogo e</text>
+  <text x="287" y="265" class="line-label">inscribe [HTTPS/REST]</text>
+
+  <!-- Coordinador -> PIA -->
+  <line x1="230" y1="410" x2="350" y2="340" class="line-solid"/>
+  <rect x="235" y="365" width="105" height="30" fill="#ffffff" rx="4" stroke="#cbd5e0"/>
+  <text x="287" y="378" class="line-label">Gestiona oferta y</text>
+  <text x="287" y="390" class="line-label">auditoría [HTTPS/REST]</text>
+
+  <!-- PIA -> Legado -->
+  <line x1="650" y1="280" x2="760" y2="215" stroke="#6c757d" stroke-width="2.5" marker-end="url(#arrow-ext)"/>
+  <rect x="655" y="235" width="100" height="30" fill="#ffffff" rx="4" stroke="#cbd5e0"/>
+  <text x="705" y="248" class="line-label">Sincronización</text>
+  <text x="705" y="260" class="line-label">asíncrona (Outbox)</text>
+
+  <!-- PIA -> SSO -->
+  <line x1="650" y1="320" x2="760" y2="345" stroke="#6c757d" stroke-width="2.5" marker-end="url(#arrow-ext)"/>
+  <rect x="660" y="318" width="90" height="20" fill="#ffffff" rx="4" stroke="#cbd5e0"/>
+  <text x="705" y="332" class="line-label">Valida credenciales</text>
+
+  <!-- PIA -> Notificaciones -->
+  <line x1="650" y1="370" x2="760" y2="455" stroke="#6c757d" stroke-width="2.5" marker-end="url(#arrow-ext)"/>
+  <rect x="660" y="405" width="90" height="20" fill="#ffffff" rx="4" stroke="#cbd5e0"/>
+  <text x="705" y="418" class="line-label">Envía comprobantes</text>
+
+  <!-- Legend -->
+  <rect x="50" y="580" width="900" height="50" fill="#ffffff" stroke="#e2e8f0" rx="6"/>
+  <rect x="70" y="598" width="16" height="16" class="box-user"/>
+  <text x="95" y="611" class="legend-text">Actor / Usuario</text>
+  <rect x="230" y="598" width="16" height="16" class="box-system"/>
+  <text x="255" y="611" class="legend-text">Sistema Principal en Alcance (PIA)</text>
+  <rect x="490" y="598" width="16" height="16" class="box-external"/>
+  <text x="515" y="611" class="legend-text">Sistema Externo Existente</text>
+  <line x1="720" y1="606" x2="750" y2="606" class="line-solid"/>
+  <text x="760" y="611" class="legend-text">Flujo Síncrono / Asíncrono</text>
+</svg>

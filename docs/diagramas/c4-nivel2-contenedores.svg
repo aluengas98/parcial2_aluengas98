@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 820" width="100%" height="100%">
+  <defs>
+    <style>
+      .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 22px; font-weight: bold; fill: #1a202c; }
+      .subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; fill: #718096; }
+      .box-user { fill: #08427b; stroke: #052c52; stroke-width: 2; rx: 8; }
+      .box-container { fill: #438dd5; stroke: #2b6cb0; stroke-width: 2; rx: 8; }
+      .box-db { fill: #2366b8; stroke: #1a4971; stroke-width: 2; rx: 12; }
+      .box-external { fill: #6c757d; stroke: #495057; stroke-width: 2; rx: 8; }
+      .text-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #ffffff; text-anchor: middle; }
+      .text-type { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #e2e8f0; text-anchor: middle; }
+      .text-desc { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10.5px; fill: #ffffff; text-anchor: middle; }
+      .line-solid { stroke: #2b6cb0; stroke-width: 2.2; marker-end: url(#arrow); }
+      .line-async { stroke: #e53e3e; stroke-width: 2.2; stroke-dasharray: 5,4; marker-end: url(#arrow-red); }
+      .line-ext { stroke: #4a5568; stroke-width: 2.2; stroke-dasharray: 4,4; marker-end: url(#arrow-ext); }
+      .line-label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #2d3748; text-anchor: middle; }
+      .boundary-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: bold; fill: #2b6cb0; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e53e3e"/>
+    </marker>
+    <marker id="arrow-ext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1150" height="820" fill="#f8fafc"/>
+
+  <!-- Headers -->
+  <text x="40" y="35" class="title">C4 Model: Nivel 2 - Diagrama de Contenedores</text>
+  <text x="40" y="55" class="subtitle">Plataforma de Inscripción Académica (PIA) - Infraestructura Linux y PostgreSQL (C08, C10, Escenario A)</text>
+
+  <!-- Actor (Top Left) -->
+  <rect x="40" y="90" width="160" height="80" class="box-user"/>
+  <text x="120" y="120" class="text-title">Estudiante / Usuario</text>
+  <text x="120" y="135" class="text-type">[Navegador Web / Móvil]</text>
+  <text x="120" y="152" class="text-desc">1.200 usuarios concurrentes</text>
+
+  <!-- External SSO (Top Right) -->
+  <rect x="940" y="90" width="170" height="80" class="box-external"/>
+  <text x="1025" y="120" class="text-title">SSO Institucional</text>
+  <text x="1025" y="135" class="text-type">[LDAP / OAuth2]</text>
+  <text x="1025" y="152" class="text-desc">Autenticación centralizada</text>
+
+  <!-- PIA SYSTEM BOUNDARY -->
+  <rect x="40" y="210" width="850" height="560" fill="#f0f7ff" stroke="#90cdf4" stroke-width="2" rx="12"/>
+  <text x="60" y="235" class="boundary-title">Plataforma de Inscripción Académica (PIA) [Límite de Sistema]</text>
+
+  <!-- Container 1: Web App SPA -->
+  <rect x="70" y="260" width="220" height="110" class="box-container"/>
+  <text x="180" y="290" class="text-title">Single Page Application</text>
+  <text x="180" y="306" class="text-type">[Contenedor: React / TypeScript]</text>
+  <text x="180" y="325" class="text-desc">Interfaz reactiva de matrícula,</text>
+  <text x="180" y="340" class="text-desc">catálogo de cupos en tiempo real</text>
+  <text x="180" y="355" class="text-desc">y banners informativos de contingencia.</text>
+
+  <!-- Container 2: Reverse Proxy / API Gateway NGINX -->
+  <rect x="360" y="260" width="220" height="110" class="box-container"/>
+  <text x="470" y="290" class="text-title">Reverse Proxy / Gateway</text>
+  <text x="470" y="306" class="text-type">[Contenedor: NGINX en Linux]</text>
+  <text x="470" y="325" class="text-desc">Terminación TLS 1.3, Rate Limiting,</text>
+  <text x="470" y="340" class="text-desc">compresión gzip y balanceo de carga</text>
+  <text x="470" y="355" class="text-desc">hacia workers del backend.</text>
+
+  <!-- Container 3: Backend API (Monolito Modular) -->
+  <rect x="650" y="260" width="220" height="140" class="box-container"/>
+  <text x="760" y="285" class="text-title">Backend API Core</text>
+  <text x="760" y="300" class="text-type">[Contenedor: Python FastAPI / Uvicorn]</text>
+  <text x="760" y="320" class="text-desc">Monolito Modular Hexagonal:</text>
+  <text x="760" y="335" class="text-desc">• Motor de Reglas Académicas</text>
+  <text x="760" y="350" class="text-desc">• Control Concurrencia Cupos</text>
+  <text x="760" y="365" class="text-desc">• Generador Outbox Events</text>
+  <text x="760" y="380" class="text-desc">• Prerrequisitos Snapshot Validator</text>
+
+  <!-- Container 4: In-Memory Cache & Lock Store (Redis) -->
+  <rect x="360" y="440" width="220" height="110" class="box-db"/>
+  <text x="470" y="470" class="text-title">Caché &amp; Locks (Redis)</text>
+  <text x="470" y="486" class="text-type">[Contenedor: Redis 7 en Linux]</text>
+  <text x="470" y="505" class="text-desc">Caché L2 de catálogo (P95 &lt; 2s),</text>
+  <text x="470" y="520" class="text-desc">tokens de idempotencia (anti-reintentos)</text>
+  <text x="470" y="535" class="text-desc">y contadores de rate-limit.</text>
+
+  <!-- Container 5: Base de Datos Relacional Primaria -->
+  <rect x="650" y="450" width="220" height="130" class="box-db"/>
+  <text x="760" y="480" class="text-title">PostgreSQL Primario</text>
+  <text x="760" y="496" class="text-type">[Contenedor: PostgreSQL 16 ACID]</text>
+  <text x="760" y="515" class="text-desc">Fuente transaccional de la PIA:</text>
+  <text x="760" y="530" class="text-desc">Bloqueo a nivel de fila (FOR UPDATE),</text>
+  <text x="760" y="545" class="text-desc">Inscripciones, Tabla Outbox,</text>
+  <text x="760" y="560" class="text-desc">Auditoría forense inmutable.</text>
+
+  <!-- Container 6: Read Replica PostgreSQL -->
+  <rect x="650" y="630" width="220" height="110" class="box-db"/>
+  <text x="760" y="660" class="text-title">PostgreSQL Read Replica</text>
+  <text x="760" y="676" class="text-type">[Contenedor: Standby Streaming Replica]</text>
+  <text x="760" y="695" class="text-desc">Descarga consultas pesadas de catálogo</text>
+  <text x="760" y="710" class="text-desc">y reportes. Garantiza RTO &lt; 30m,</text>
+  <text x="760" y="725" class="text-desc">RPO &lt; 5m con WAL Archiving.</text>
+
+  <!-- Container 7: Outbox Sync Worker Daemon -->
+  <rect x="360" y="630" width="220" height="110" class="box-container"/>
+  <text x="470" y="655" class="text-title">Outbox Sync Worker</text>
+  <text x="470" y="670" class="text-type">[Proceso Daemon / Python en Linux]</text>
+  <text x="470" y="688" class="text-desc">Lee eventos de transactional_outbox.</text>
+  <text x="470" y="703" class="text-desc">Circuit Breaker integrado.</text>
+  <text x="470" y="718" class="text-desc">Pausa en cortes (Escenario A) y</text>
+  <text x="470" y="732" class="text-desc">sincroniza en diferido con reintentos.</text>
+
+  <!-- External System (Right Bottom) -->
+  <rect x="940" y="630" width="180" height="110" class="box-external"/>
+  <text x="1030" y="660" class="text-title">Sistema Académico Legado</text>
+  <text x="1030" y="675" class="text-type">[Sistema Externo de 12 años]</text>
+  <text x="1030" y="695" class="text-desc">Fuente oficial de historial.</text>
+  <text x="1030" y="710" class="text-desc">Interrupción de hasta 40 min.</text>
+  <text x="1030" y="725" class="text-desc">Sincronización final diferida.</text>
+
+  <!-- CONNECTIONS -->
+  <!-- Estudiante -> SPA -->
+  <line x1="120" y1="170" x2="120" y2="260" class="line-solid"/>
+  <text x="120" y="210" class="line-label">HTTPS / Navegador</text>
+
+  <!-- SPA -> NGINX -->
+  <line x1="290" y1="315" x2="360" y2="315" class="line-solid"/>
+  <text x="325" y="305" class="line-label">REST / TLS</text>
+
+  <!-- NGINX -> Backend -->
+  <line x1="580" y1="315" x2="650" y2="315" class="line-solid"/>
+  <text x="615" y="305" class="line-label">HTTP / Reverse Proxy</text>
+
+  <!-- Backend -> SSO -->
+  <line x1="870" y1="300" x2="940" y2="150" class="line-ext"/>
+  <text x="910" y="220" class="line-label">OAuth2 / OIDC</text>
+
+  <!-- Backend -> Redis -->
+  <line x1="710" y1="400" x2="540" y2="440" class="line-solid"/>
+  <text x="635" y="430" class="line-label">Idempotency &amp; Cache</text>
+
+  <!-- Backend -> PostgreSQL Primario -->
+  <line x1="760" y1="400" x2="760" y2="450" class="line-solid"/>
+  <text x="795" y="425" class="line-label">ACID Write</text>
+
+  <!-- Backend -> Read Replica -->
+  <line x1="860" y1="400" x2="860" y2="640" stroke="#2b6cb0" stroke-width="1.8" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+  <text x="895" y="520" class="line-label">Query Read (C02)</text>
+
+  <!-- PostgreSQL Primario -> Read Replica -->
+  <line x1="760" y1="580" x2="760" y2="630" class="line-solid"/>
+  <text x="795" y="605" class="line-label">WAL Streaming</text>
+
+  <!-- PostgreSQL Primario -> Outbox Worker -->
+  <line x1="650" y1="550" x2="520" y2="630" class="line-solid"/>
+  <text x="560" y="585" class="line-label">SELECT Outbox Events</text>
+
+  <!-- Outbox Worker -> Sistema Legado -->
+  <line x1="580" y1="685" x2="940" y2="685" class="line-async"/>
+  <rect x="670" y="665" width="180" height="35" fill="#fff5f5" stroke="#feb2b2" rx="4"/>
+  <text x="760" y="680" class="line-label" fill="#c53030" font-weight="bold">Sincronización Asíncrona Resiliente</text>
+  <text x="760" y="694" class="line-label" fill="#742a2a">(Circuit Breaker / Tolera 40m caída)</text>
+</svg>

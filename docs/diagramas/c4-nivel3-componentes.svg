@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 820" width="100%" height="100%">
+  <defs>
+    <style>
+      .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 22px; font-weight: bold; fill: #1a202c; }
+      .subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; fill: #718096; }
+      .box-component { fill: #85bbf0; stroke: #2b6cb0; stroke-width: 2; rx: 8; }
+      .box-domain { fill: #63b3ed; stroke: #1a365d; stroke-width: 2.5; rx: 8; }
+      .box-infra { fill: #a0aec0; stroke: #4a5568; stroke-width: 2; rx: 8; }
+      .box-db { fill: #2366b8; stroke: #1a4971; stroke-width: 2; rx: 10; }
+      .text-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13.5px; font-weight: bold; fill: #0f2d4a; text-anchor: middle; }
+      .text-type { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10.5px; fill: #1a365d; text-anchor: middle; }
+      .text-desc { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #2d3748; text-anchor: middle; }
+      .line-solid { stroke: #2b6cb0; stroke-width: 2.2; marker-end: url(#arrow); }
+      .line-tx { stroke: #c53030; stroke-width: 2.5; marker-end: url(#arrow-red); }
+      .line-label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #2d3748; text-anchor: middle; }
+      .tx-boundary { fill: #fff5f5; stroke: #e53e3e; stroke-width: 2; stroke-dasharray: 6,4; rx: 10; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#c53030"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1150" height="820" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <text x="40" y="35" class="title">C4 Model: Nivel 3 - Descomposición de Componentes</text>
+  <text x="40" y="55" class="subtitle">Módulo de Inscripciones y Control Atómico de Cupos (Arquitectura Hexagonal / Puertos y Adaptadores)</text>
+
+  <!-- External Container Invoker -->
+  <rect x="40" y="90" width="200" height="70" fill="#438dd5" stroke="#2b6cb0" stroke-width="2" rx="8"/>
+  <text x="140" y="120" font-family="'Segoe UI', Arial, sans-serif" font-size="13px" font-weight="bold" fill="#ffffff" text-anchor="middle">Reverse Proxy / NGINX</text>
+  <text x="140" y="140" font-family="'Segoe UI', Arial, sans-serif" font-size="10.5px" fill="#e2e8f0" text-anchor="middle">POST /api/v1/inscripciones</text>
+
+  <!-- MODULE CONTAINER BOUNDARY -->
+  <rect x="40" y="190" width="1070" height="580" fill="#ffffff" stroke="#cbd5e0" stroke-width="2" rx="12"/>
+  <text x="60" y="215" font-family="'Segoe UI', Arial, sans-serif" font-size="13px" font-weight="bold" fill="#2b6cb0">PIA Core - Módulo de Inscripciones y Asignación de Cupos [Python / FastAPI]</text>
+
+  <!-- 1. Adapter Entrada: Controller -->
+  <rect x="70" y="250" width="200" height="100" class="box-component"/>
+  <text x="170" y="280" class="text-title">EnrollmentController</text>
+  <text x="170" y="295" class="text-type">[Adaptador Primario / REST]</text>
+  <text x="170" y="315" class="text-desc">Expone endpoints de inscripción.</text>
+  <text x="170" y="330" class="text-desc">Extrae JWT e Idempotency-Key.</text>
+
+  <!-- 2. Idempotency Interceptor / Middleware -->
+  <rect x="330" y="250" width="200" height="100" class="box-component"/>
+  <text x="430" y="280" class="text-title">IdempotencyInterceptor</text>
+  <text x="430" y="295" class="text-type">[Componente de Protección]</text>
+  <text x="430" y="315" class="text-desc">Verifica duplicados en Redis.</text>
+  <text x="430" y="330" class="text-desc">Frena reintentos (hasta 5x).</text>
+
+  <!-- 3. Application Service: Orchestrator -->
+  <rect x="600" y="250" width="220" height="100" class="box-component"/>
+  <text x="710" y="280" class="text-title">EnrollmentApplicationService</text>
+  <text x="710" y="295" class="text-type">[Capa de Aplicación / Caso de Uso]</text>
+  <text x="710" y="315" class="text-desc">Coordina validaciones de dominio,</text>
+  <text x="710" y="330" class="text-desc">reserva de cupo y evento outbox.</text>
+
+  <!-- DOMAIN LAYER (Center) -->
+  <!-- 4. Prerequisite Validator -->
+  <rect x="70" y="420" width="220" height="110" class="box-domain"/>
+  <text x="180" y="450" class="text-title" fill="#ffffff">PrerequisiteValidator</text>
+  <text x="180" y="465" class="text-type" fill="#e2e8f0">[Servicio de Dominio]</text>
+  <text x="180" y="485" class="text-desc" fill="#ffffff">Evalúa prerrequisitos sobre</text>
+  <text x="180" y="500" class="text-desc" fill="#ffffff">Snapshot local inmutable (Warm Cache).</text>
+  <text x="180" y="515" class="text-desc" fill="#e53e3e" font-weight="bold">No llama al Legado en línea (Esc. A).</text>
+
+  <!-- 5. Academic Rule Engine -->
+  <rect x="330" y="420" width="210" height="110" class="box-domain"/>
+  <text x="435" y="450" class="text-title" fill="#ffffff">AcademicRuleEngine</text>
+  <text x="435" y="465" class="text-type" fill="#e2e8f0">[Motor de Reglas / Specification]</text>
+  <text x="435" y="485" class="text-desc" fill="#ffffff">Verifica cruce de horarios,</text>
+  <text x="435" y="500" class="text-desc" fill="#ffffff">créditos máximos y facultad.</text>
+  <text x="435" y="515" class="text-desc" fill="#ffffff">Alta modificabilidad (C10).</text>
+
+  <!-- 6. Quota Reservation Service -->
+  <rect x="580" y="420" width="220" height="110" class="box-domain"/>
+  <text x="690" y="450" class="text-title" fill="#ffffff">QuotaReservationService</text>
+  <text x="690" y="465" class="text-type" fill="#e2e8f0">[Servicio de Dominio Central]</text>
+  <text x="690" y="485" class="text-desc" fill="#ffffff">Aplica regla C04 (Cero sobrecupos).</text>
+  <text x="690" y="500" class="text-desc" fill="#ffffff">Garantiza cupo disponible &gt; 0</text>
+  <text x="690" y="515" class="text-desc" fill="#ffffff">bajo contexto transaccional atómico.</text>
+
+  <!-- INFRASTRUCTURE BOUNDARY / TRANSACTIONAL SCOPE -->
+  <rect x="80" y="590" width="980" height="160" class="tx-boundary"/>
+  <text x="100" y="612" font-family="'Segoe UI', Arial, sans-serif" font-size="12px" font-weight="bold" fill="#c53030">Límite Transaccional ACID PostgreSQL (Bloqueo Pesimista SELECT FOR UPDATE + Outbox + Auditoría)</text>
+
+  <!-- 7. Postgres Enrollment Adapter -->
+  <rect x="100" y="630" width="270" height="100" class="box-infra"/>
+  <text x="235" y="660" class="text-title">PostgresEnrollmentAdapter</text>
+  <text x="235" y="675" class="text-type">[Adaptador Secundario de Persistencia]</text>
+  <text x="235" y="695" class="text-desc">Ejecuta SELECT FOR UPDATE en grupos,</text>
+  <text x="235" y="710" class="text-desc">inserta inscripción y evento outbox.</text>
+
+  <!-- 8. Outbox Event Publisher -->
+  <rect x="420" y="630" width="260" height="100" class="box-infra"/>
+  <text x="550" y="660" class="text-title">TransactionalOutboxService</text>
+  <text x="550" y="675" class="text-type">[Patrón Outbox / Persistencia de Evento]</text>
+  <text x="550" y="695" class="text-desc">Registra el evento ENROLLMENT_CONFIRMED</text>
+  <text x="550" y="710" class="text-desc">en la misma transacción atómica.</text>
+
+  <!-- 9. Database Engine PostgreSQL -->
+  <rect x="740" y="625" width="290" height="110" class="box-db"/>
+  <text x="885" y="655" class="text-title" fill="#ffffff">Motor PostgreSQL 16</text>
+  <text x="885" y="670" class="text-type" fill="#e2e8f0">[RDBMS Relacional ACID]</text>
+  <text x="885" y="690" class="text-desc" fill="#ffffff">• Tablas: grupos, inscripciones,</text>
+  <text x="885" y="705" class="text-desc" fill="#ffffff">  transactional_outbox, auditoria</text>
+  <text x="885" y="720" class="text-desc" fill="#ffffff">• Aislamiento READ COMMITTED con lock pesimista</text>
+
+  <!-- CONNECTIONS -->
+  <!-- NGINX -> Controller -->
+  <line x1="140" y1="160" x2="140" y2="250" class="line-solid"/>
+  <text x="180" y="210" class="line-label">HTTP Payload</text>
+
+  <!-- Controller -> Idempotency -->
+  <line x1="270" y1="300" x2="330" y2="300" class="line-solid"/>
+  <text x="300" y="290" class="line-label">Valida</text>
+
+  <!-- Idempotency -> Application Service -->
+  <line x1="530" y1="300" x2="600" y2="300" class="line-solid"/>
+  <text x="565" y="290" class="line-label">Ejecuta</text>
+
+  <!-- Application Service -> Prereq -->
+  <line x1="630" y1="350" x2="220" y2="420" class="line-solid"/>
+  <text x="390" y="380" class="line-label">1. Valida Prerrequisitos</text>
+
+  <!-- Application Service -> Rules -->
+  <line x1="680" y1="350" x2="460" y2="420" class="line-solid"/>
+  <text x="555" y="385" class="line-label">2. Valida Horarios</text>
+
+  <!-- Application Service -> Quota -->
+  <line x1="730" y1="350" x2="710" y2="420" class="line-solid"/>
+  <text x="745" y="385" class="line-label">3. Reserva Cupo</text>
+
+  <!-- Quota -> Adapter -->
+  <line x1="660" y1="530" x2="280" y2="630" class="line-tx"/>
+  <text x="440" y="575" class="line-label" fill="#c53030">4. Inicia Tx Atómica ACID</text>
+
+  <!-- Adapter -> Outbox Service -->
+  <line x1="370" y1="680" x2="420" y2="680" class="line-tx"/>
+  <text x="395" y="670" class="line-label" fill="#c53030">5. Encola</text>
+
+  <!-- Outbox Service -> Postgres DB -->
+  <line x1="680" y1="680" x2="740" y2="680" class="line-tx"/>
+  <text x="710" y="670" class="line-label" fill="#c53030">6. COMMIT</text>
+</svg>
