@@ -48,7 +48,7 @@ Se selecciona el estilo **Monolito Modular (*Modular Monolith*) estructurado int
 
 Este nivel ilustra los usuarios principales, los límites institucionales de la Universidad de La Salle y las integraciones con sistemas periféricos.
 
-> **Diagrama Vectorial SVG:** [Ver Diagrama de Contexto Vectorial SVG](file:///C:/Users/andre/.gemini/antigravity/scratch/parcial2_aluengas98/docs/diagramas/c4-nivel1-contexto.svg)
+> **Diagrama Vectorial SVG:** [Ver Diagrama de Contexto Vectorial SVG](diagramas/c4-nivel1-contexto.svg)
 
 ```mermaid
 flowchart TB
@@ -85,7 +85,7 @@ flowchart TB
 
 Este diagrama detalla los contenedores lógicos que conforman la PIA, su infraestructura subyacente en Linux y PostgreSQL (C08), y la separación de responsabilidades.
 
-> **Diagrama Vectorial SVG:** [Ver Diagrama de Contenedores Vectorial SVG](file:///C:/Users/andre/.gemini/antigravity/scratch/parcial2_aluengas98/docs/diagramas/c4-nivel2-contenedores.svg)
+> **Diagrama Vectorial SVG:** [Ver Diagrama de Contenedores Vectorial SVG](diagramas/c4-nivel2-contenedores.svg)
 
 ```mermaid
 flowchart TB
@@ -135,7 +135,7 @@ flowchart TB
 
 Muestra la estructura interna hexagonal del módulo crítico donde se garantiza el cumplimiento de C04 (cero sobrecupos), C05 (aislamiento del legado) e idempotencia ante reintentos.
 
-> **Diagrama Vectorial SVG:** [Ver Diagrama de Componentes Vectorial SVG](file:///C:/Users/andre/.gemini/antigravity/scratch/parcial2_aluengas98/docs/diagramas/c4-nivel3-componentes.svg)
+> **Diagrama Vectorial SVG:** [Ver Diagrama de Componentes Vectorial SVG](diagramas/c4-nivel3-componentes.svg)
 
 ```mermaid
 flowchart TB
@@ -167,7 +167,7 @@ flowchart TB
     AppService --> RuleEngine
     AppService --> QuotaService
     QuotaService --> RepoPort
-    RepoPort <|.. RepoAdapter
+    RepoAdapter -.->|Implementa Interfaz| RepoPort
     RepoAdapter -->|"Transacción Única ACID"| OutboxTable
     RepoAdapter -->|"Transacción Única ACID"| AuditTable
 
