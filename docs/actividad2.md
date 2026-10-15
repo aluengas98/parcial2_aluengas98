@@ -98,11 +98,11 @@ flowchart TB
         
         BackendAPI["<b>PIA Core Backend API</b><br/>[Python 3.12 / FastAPI / Uvicorn]<br/>Monolito Modular Hexagonal:<br/>Dominio de Matrículas, Cupos, Motor de Reglas."]
 
-        Redis["<b>Caché & Distributed Locks</b><br/>[Redis 7 Open Source en Linux]<br/>Caché de catálogo (P95 &lt; 2s), tokens de<br/>idempotencia anti-reintentos y rate limit."]
+        Redis["Caché y Distributed Locks (Redis)<br/>[Redis 7 Open Source en Linux]<br/>Caché de catálogo (P95 menor a 2s), tokens<br/>de idempotencia y rate limiting"]
 
-        PostgresMaster["<b>PostgreSQL 16 (Primario Transaccional)</b><br/>[PostgreSQL en Linux - ACID]<br/>Fuente de verdad PIA: Lock pesimista (FOR UPDATE),<br/>Inscripciones, Tabla Outbox y Auditoría."]
+        PostgresMaster["PostgreSQL 16 (Primario Transaccional)<br/>[PostgreSQL en Linux - ACID]<br/>Fuente de verdad PIA: Lock pesimista (FOR UPDATE),<br/>Inscripciones, Tabla Outbox y Auditoría"]
 
-        PostgresReplica["<b>PostgreSQL 16 (Read Replica / Standby)</b><br/>[Streaming Replication]<br/>Atiende consultas masivas de catálogo.<br/>Garantiza RTO &lt; 30m y RPO &lt; 5m."]
+        PostgresReplica["PostgreSQL 16 (Read Replica / Standby)<br/>[Streaming Replication]<br/>Atiende consultas masivas de catálogo.<br/>Garantiza RTO menor a 30m y RPO menor a 5m"]
 
         OutboxWorker["<b>Outbox Sync Worker Daemon</b><br/>[Proceso Daemon Python en Linux]<br/>Drena tabla transactional_outbox hacia el legado.<br/>Equipado con Circuit Breaker y Backoff."]
     end
@@ -151,12 +151,12 @@ flowchart TB
     subgraph Dominio["Capa de Dominio (Hexágono Central Puro)"]
         PrereqValidator["<b>PrerequisiteValidator</b><br/>[Servicio de Dominio]<br/>Valida prerrequisitos contra el<br/>Snapshot Inmutable local (Warm Cache).<br/><i>No depende del Legado en línea (Esc. A).</i>"]
         RuleEngine["<b>AcademicRuleEngine</b><br/>[Specification Pattern]<br/>Valida cruce de horarios, créditos<br/>máximos y normativas de facultad."]
-        QuotaService["<b>QuotaReservationService</b><br/>[Servicio de Dominio Transaccional]<br/>Aplica regla estricta: Cupos Disponibles &gt; 0.<br/>Ejecuta reserva bajo lock exclusivo."]
+        QuotaService["QuotaReservationService<br/>[Servicio de Dominio Transaccional]<br/>Aplica regla estricta: Cupos Disponibles mayores a 0.<br/>Ejecuta reserva bajo lock exclusivo."]
     end
 
     subgraph Infraestructura["Adaptadores Secundarios (Salida) / Persistencia"]
-        RepoPort["&laquo;interface&raquo;<br/><b>EnrollmentRepository</b><br/>[Puerto de Dominio]"]
-        RepoAdapter["<b>PostgresEnrollmentAdapter</b><br/>[Adaptador de Persistencia]<br/>Ejecuta SELECT FOR UPDATE en grupos,<br/>crea registro en inscripciones y outbox."]
+        RepoPort["Interface: EnrollmentRepository<br/>[Puerto de Dominio]"]
+        RepoAdapter["PostgresEnrollmentAdapter<br/>[Adaptador de Persistencia]<br/>Ejecuta SELECT FOR UPDATE en grupos,<br/>crea registro en inscripciones y outbox."]
         OutboxTable["<b>TransactionalOutboxTable</b><br/>[Tabla PostgreSQL]<br/>Almacena evento ENROLLMENT_CONFIRMED."]
         AuditTable["<b>AuditLogTable</b><br/>[Tabla PostgreSQL]<br/>Trazabilidad inmutable con timestamp e IP."]
     end
@@ -282,31 +282,31 @@ sequenceDiagram
     participant PIA_Core as PIA Backend
     participant DB as PostgreSQL (Outbox)
     participant Worker as Outbox Worker
-    participant Legado as Sistema Académico Legado
+    participant Legado as Sistema Academico Legado
 
-    Note over Legado: SISTEMA LEGADO CAÍDO (Minuto 0 a 40)
+    Note over Legado: SISTEMA LEGADO CAIDO - Minuto 0 a 40
     Estudiante->>PIA_Core: POST /inscripciones (Calculo I, Grupo A)
     PIA_Core->>PIA_Core: Valida Prerrequisitos con Snapshot Local
-    PIA_Core->>DB: BEGIN Tx: Reserva Cupo + Inserta Inscripción + Inserta Outbox ('PENDING')
-    DB-->>PIA_Core: COMMIT Exitoso
-    PIA_Core-->>Estudiante: 201 Created (Cupo Asegurado + Código HMAC)
+    PIA_Core->>DB: Inicia Transaccion ACID: Reserva Cupo, Inscripcion y Outbox
+    DB-->>PIA_Core: Confirmacion de Transaccion Exitosa
+    PIA_Core-->>Estudiante: 201 Created (Cupo Asegurado con Hash HMAC)
 
-    Worker->>Legado: Intento de Sync (Healthcheck / Ping)
-    Legado--xWorker: HTTP 500 / Connection Timeout
-    Note over Worker: Circuit Breaker pasa a OPEN.<br/>Outbox Worker pausa envíos.<br/>CERO eventos se pierden; quedan en DB.
+    Worker->>Legado: Intento de Sincronizacion (Healthcheck)
+    Legado--xWorker: Error 500 o Timeout
+    Note over Worker: Circuit Breaker pasa a OPEN. Outbox Worker pausa envios y protege eventos en BD local.
 
     Note over Legado: MINUTO 40: SISTEMA LEGADO SE RESTABLECE
     Worker->>Legado: Healthcheck de prueba (Half-Open)
-    Legado-->>Worker: HTTP 200 OK
-    Note over Worker: Circuit Breaker pasa a CLOSED.<br/>Drenaje controlado por Lotes (Batch FIFO).
+    Legado-->>Worker: 200 OK
+    Note over Worker: Circuit Breaker pasa a CLOSED. Drenaje controlado por Lotes FIFO.
 
     loop Drenaje Idempotente
-        Worker->>DB: SELECT * FROM transactional_outbox WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 100
-        Worker->>Legado: POST /api/sync-inscripciones (Eventos con Idempotency-Key)
-        Legado-->>Worker: 200 OK (Confirmación de recepción e ID legado)
-        Worker->>DB: UPDATE transactional_outbox SET status = 'SYNCED', synced_at = NOW()
+        Worker->>DB: Consulta eventos pendientes en Outbox
+        Worker->>Legado: Envia lote de inscripciones con Idempotency-Key
+        Legado-->>Worker: 200 OK (Confirmacion e ID oficial de legado)
+        Worker->>DB: Actualiza estado de eventos a SYNCED
     end
-    Note over Worker: Sincronización finalizada sin cupos duplicados ni rechazos.
+    Note over Worker: Sincronizacion completada sin duplicados ni rechazos
 ```
 
 1. **Estado del Circuit Breaker durante la Caída:** El Circuit Breaker pasa a estado `OPEN` tras 3 fallos consecutivos, suspendiendo las llamadas HTTP hacia el legado para no agotar hilos ni conexiones del servidor.

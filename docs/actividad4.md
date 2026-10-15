@@ -20,12 +20,12 @@ Para la Plataforma de Inscripción Académica (PIA) de la Universidad de La Sall
 
 ```mermaid
 stateDiagram-v2
-    [*] --> CLOSED: Operación Normal
-    CLOSED --> OPEN: 3 Fallos Consecutivos o Timeout (Legado Caído 40 min)
-    note right of OPEN: Modo Contingencia (Escenario A):<br/>- Valida Prerrequisitos con Snapshot Local<br/>- Reserva Cupos en PostgreSQL Local<br/>- Encola en Transactional Outbox<br/>- Muestra Banner Informativo
-    OPEN --> HALF_OPEN: Transcurridos 30s de Cooldown (Probe Heartbeat)
-    HALF_OPEN --> CLOSED: 3 Peticiones de Prueba Exitosas (Legado Restablecido)
-    HALF_OPEN --> OPEN: Si Falla Petición de Prueba
+    [*] --> CLOSED: Operacion Normal
+    CLOSED --> OPEN: 3 Fallos Consecutivos (Legado Caido)
+    note right of OPEN: Modo Contingencia (Escenario A): Valida con Snapshot Local y Encola en Outbox
+    OPEN --> HALF_OPEN: Cooldown 30s (Probe Heartbeat)
+    HALF_OPEN --> CLOSED: Peticiones Exitosas (Legado Restablecido)
+    HALF_OPEN --> OPEN: Si Falla Prueba
 ```
 
 ### 2.1 Atributo de Calidad que Busca Mejorar
@@ -72,12 +72,12 @@ El sistema legado de más de 12 años suele caerse al inicio de la matrícula. E
 flowchart LR
     Cliente["Estudiante (Consulta Asignaturas)"] --> Proxy["NGINX Proxy"]
     Proxy --> Backend["PIA Backend"]
-    Backend --> L1{"L1: In-Memory LRU<br/>(&lt; 1 ms)"}
-    L1 -->|Hit 70%| Res1["Retorna Catálogo"]
-    L1 -->|Miss| L2{"L2: Redis Cache<br/>(&lt; 3 ms)"}
-    L2 -->|Hit 25%| Res2["Retorna & Popula L1"]
-    L2 -->|Miss 5%| Replica[("PostgreSQL Read Replica<br/>(&lt; 40 ms)")]
-    Replica --> Res3["Retorna & Popula L2 y L1"]
+    Backend --> L1["L1: In-Memory LRU (latencia menor a 1 ms)"]
+    L1 -->|Hit 70%| Res1["Retorna Catalogo"]
+    L1 -->|Miss| L2["L2: Redis Cache (latencia menor a 3 ms)"]
+    L2 -->|Hit 25%| Res2["Retorna y Actualiza L1"]
+    L2 -->|Miss 5%| Replica["PostgreSQL Read Replica (latencia menor a 40 ms)"]
+    Replica --> Res3["Retorna y Actualiza L2 y L1"]
 ```
 
 ### 3.1 Atributo de Calidad que Busca Mejorar
@@ -124,27 +124,25 @@ sequenceDiagram
     participant Core as Enrollment Core
     participant DB as PostgreSQL 16 (Primario)
 
-    Estudiante->>Interceptor: POST /inscripciones (Header: Idempotency-Key: UUID)
+    Estudiante->>Interceptor: POST /inscripciones con Idempotency-Key
     
-    alt Reintento Duplicado (Petición 2 a 5)
-        Interceptor-->>Estudiante: 200 OK (Retorna respuesta en cache - 0 procesamiento)
-    else Primera Petición
-        Interceptor->>Interceptor: SETNX Idempotency-Key 'IN_PROGRESS' (TTL: 120s)
-        Interceptor->>Core: Procesa Inscripción
-        Core->>DB: BEGIN TRANSACTION
-        Core->>DB: SET LOCAL lock_timeout = '2000ms'
-        Core->>DB: SELECT cupos_ocupados, capacidad FROM grupos WHERE id = 101 FOR UPDATE
-        Note over DB: Bloqueo exclusivo sólo en la fila del grupo 101
+    alt Reintento Duplicado (Peticion 2 a 5)
+        Interceptor-->>Estudiante: 200 OK (Retorna respuesta cacheada previa)
+    else Primera Peticion
+        Interceptor->>Interceptor: Registra llave en estado IN_PROGRESS
+        Interceptor->>Core: Procesa Inscripcion
+        Core->>DB: Inicia Transaccion con lock_timeout defensivo
+        Core->>DB: Bloqueo exclusivo con SELECT FOR UPDATE
         
-        alt Cupo Disponible (cupos_ocupados < capacidad)
-            Core->>DB: UPDATE grupos SET cupos_ocupados = cupos_ocupados + 1 WHERE id = 101
-            Core->>DB: INSERT INTO inscripciones (...)
-            Core->>DB: INSERT INTO transactional_outbox (...)
-            Core->>DB: COMMIT
-            Core->>Interceptor: Guarda Respuesta en Redis ('COMPLETED')
-            Core-->>Estudiante: 201 Created (Inscripción Exitosa)
+        alt Cupo Disponible (cupos ocupados menor a capacidad)
+            Core->>DB: Actualiza contador de cupos del grupo
+            Core->>DB: Inserta registro en inscripciones
+            Core->>DB: Inserta evento en transactional_outbox
+            Core->>DB: Confirma transaccion con COMMIT
+            Core->>Interceptor: Actualiza estado a COMPLETED en Redis
+            Core-->>Estudiante: 201 Created (Inscripcion Exitosa)
         else Cupo Agotado
-            Core->>DB: ROLLBACK
+            Core->>DB: Revierte transaccion con ROLLBACK
             Core-->>Estudiante: 409 Conflict (Sin Cupos Disponibles)
         end
     end

@@ -16,12 +16,12 @@ Para la Universidad de La Salle, la gobernanza se diseña a la medida de la rest
 
 ```mermaid
 graph TD
-    subgraph Equipo Institucional (C10)
-        TL["<b>Líder Técnico / Arquitecto de Software</b><br/>Gobernanza de diseño, ADRs y PRs críticos"]
-        D1["<b>Desarrollador 1</b><br/>Dominio & Reglas Académicas"]
-        D2["<b>Desarrollador 2</b><br/>Inscripciones, Cupos & Outbox"]
-        D3["<b>Desarrollador 3</b><br/>Frontend SPA & Adaptadores API"]
-        SysAdmin["<b>Administrador de Infraestructura</b><br/>Linux, PostgreSQL, Redis, Red & Seguridad (C08)"]
+    subgraph Equipo_Institucional ["Equipo Institucional (C10)"]
+        TL["Lider Tecnico / Arquitecto de Software<br/>Gobernanza de diseno, ADRs y PRs criticos"]
+        D1["Desarrollador 1<br/>Dominio y Reglas Academicas"]
+        D2["Desarrollador 2<br/>Inscripciones, Cupos y Outbox"]
+        D3["Desarrollador 3<br/>Frontend SPA y Adaptadores API"]
+        SysAdmin["Administrador de Infraestructura<br/>Linux, PostgreSQL, Redis, Red y Seguridad (C08)"]
     end
 
     TL --- D1
@@ -104,7 +104,7 @@ stateDiagram-v2
 La gobernanza se hace cumplir mediante automatización integrada en **GitHub Actions** (archivos reales configurados en el repositorio):
 
 ### 4.1 Mecanismo 1: Verificación Automática de Reglas Arquitectónicas
-- **Archivo en Repositorio:** [`.github/workflows/arch-governance.yml`](file:///C:/Users/andre/.gemini/antigravity/scratch/parcial2_aluengas98/.github/workflows/arch-governance.yml)
+- **Archivo en Repositorio:** [`.github/workflows/arch-governance.yml`](../.github/workflows/arch-governance.yml)
 - **Comportamiento en Cada Push / PR:**
   1. Analiza el código fuente con scripts de introspección AST y linters de arquitectura.
   2. **Valida la Regla 1:** Comprueba que en la carpeta `app/domain` no existan importaciones de librerías de persistencia (`sqlalchemy`, `asyncpg`) ni frameworks web (`fastapi`).
@@ -112,7 +112,7 @@ La gobernanza se hace cumplir mediante automatización integrada en **GitHub Act
   4. **Valida la Integridad de ADRs:** Verifica que todos los archivos en `docs/actividad3/` contengan obligatoriamente las secciones estructurales requeridas. Si alguna falta, el pipeline falla de inmediato.
 
 ### 4.2 Mecanismo 2: Pipeline de Pruebas Automatizadas y Análisis de Seguridad
-- **Archivo en Repositorio:** [`.github/workflows/test-pipeline.yml`](file:///C:/Users/andre/.gemini/antigravity/scratch/parcial2_aluengas98/.github/workflows/test-pipeline.yml)
+- **Archivo en Repositorio:** [`.github/workflows/test-pipeline.yml`](../.github/workflows/test-pipeline.yml)
 - **Comportamiento en Cada Push / PR:**
   1. Ejecuta la suite de pruebas unitarias y de integración mediante `pytest`.
   2. Exige un **umbral mínimo de cobertura de código del 80% (`--cov-fail-under=80`)**. Si la cobertura disminuye, el PR queda bloqueado.
@@ -126,11 +126,11 @@ La deuda técnica no controlada es la causa principal del deterioro de los siste
 
 ```mermaid
 flowchart LR
-    Detect["Incumplimiento / Urgencia"] --> Form["Registro de Deuda Técnica (TDR)"]
-    Form --> Just["Justificación & Aprobación Lead"]
-    Just --> SLA{"SLA de Remediación<br/>(Máx. 15 días)"}
-    SLA -->|Resuelto| Clean["Deuda Pagada & Test Verde"]
-    SLA -->|Vencido| Block["Bloqueo Automático de Nuevos Despliegues"]
+    Detect["Incumplimiento o Urgencia"] --> Form["Registro de Deuda Tecnica (TDR)"]
+    Form --> Just["Justificacion y Aprobacion Lead"]
+    Just --> SLA{"SLA de Remediacion (Max. 15 dias)"}
+    SLA -->|Resuelto| Clean["Deuda Pagada y Tests en Verde"]
+    SLA -->|Vencido| Block["Bloqueo Automatico de Despliegues"]
 ```
 
 1. **Protocolo de Excepción Temporal (Technical Debt Record - TDR):**
