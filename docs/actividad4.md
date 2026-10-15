@@ -19,13 +19,16 @@ Para la Plataforma de Inscripción Académica (PIA) de la Universidad de La Sall
 ## 2. Táctica 1: Aislamiento de Fallas y Degradación Agraciada (*Circuit Breaker* + *Snapshot Caching* + *Transactional Outbox*)
 
 ```mermaid
-stateDiagram-v2
-    [*] --> CLOSED: Operacion Normal
-    CLOSED --> OPEN: 3 Fallos Consecutivos (Legado Caido)
-    note right of OPEN: Modo Contingencia (Escenario A): Valida con Snapshot Local y Encola en Outbox
-    OPEN --> HALF_OPEN: Cooldown 30s (Probe Heartbeat)
-    HALF_OPEN --> CLOSED: Peticiones Exitosas (Legado Restablecido)
-    HALF_OPEN --> OPEN: Si Falla Prueba
+flowchart LR
+    Init((Inicio)) --> CLOSED["Estado: CLOSED<br/>(Operacion Normal)"]
+    CLOSED -->|"3 Fallos Consecutivos<br/>(Caida Legado 40 min)"| OPEN["Estado: OPEN (Contingencia)<br/>Valida con Snapshot y Encola en Outbox"]
+    OPEN -->|"Cooldown de 30 segundos"| HALF_OPEN["Estado: HALF-OPEN<br/>(Peticion de Prueba)"]
+    HALF_OPEN -->|"3 Respuestas Exitosas<br/>(Legado Restablecido)"| CLOSED
+    HALF_OPEN -->|"Falla de Prueba"| OPEN
+
+    style CLOSED fill:#48bb78,stroke:#276749,color:#ffffff
+    style OPEN fill:#f56565,stroke:#9b2c2c,color:#ffffff
+    style HALF_OPEN fill:#ed8936,stroke:#9c4221,color:#ffffff
 ```
 
 ### 2.1 Atributo de Calidad que Busca Mejorar
@@ -195,30 +198,31 @@ Bajo alta concurrencia, si dos o más transacciones leen al mismo tiempo que que
 ## 5. Táctica 4: Especificación y Motor de Reglas Desacoplado (*Specification Pattern*)
 
 ```mermaid
-classDiagram
-    class AcademicRuleSpecification {
-        <<interface>>
-        +is_satisfied_by(context: EnrollmentContext) RuleResult
-    }
-    class PrerequisiteRule {
-        +is_satisfied_by(context) RuleResult
-    }
-    class ScheduleConflictRule {
-        +is_satisfied_by(context) RuleResult
-    }
-    class MaxCreditsRule {
-        +is_satisfied_by(context) RuleResult
-    }
-    class CompositeAcademicRuleEngine {
-        -rules: List~AcademicRuleSpecification~
-        +add_rule(rule: AcademicRuleSpecification)
-        +validate_all(context: EnrollmentContext) ValidationReport
-    }
+flowchart TB
+    Context["EnrollmentContext<br/>(Datos del Estudiante, Asignatura y Grupo)"] --> Engine["CompositeAcademicRuleEngine<br/>(Motor Central de Reglas)"]
+    
+    subgraph Especificaciones ["Reglas Academicas Desacopladas (Specification Pattern)"]
+        Rule1["PrerequisiteRule<br/>(Valida con Snapshot Inmutable)"]
+        Rule2["ScheduleConflictRule<br/>(Valida Cruces de Horario)"]
+        Rule3["MaxCreditsRule<br/>(Valida Limite de Creditos)"]
+        Rule4["FacultyRule<br/>(Valida Normas de Facultad)"]
+    end
 
-    AcademicRuleSpecification <|.. PrerequisiteRule
-    AcademicRuleSpecification <|.. ScheduleConflictRule
-    AcademicRuleSpecification <|.. MaxCreditsRule
-    CompositeAcademicRuleEngine o-- AcademicRuleSpecification
+    Engine --> Rule1
+    Engine --> Rule2
+    Engine --> Rule3
+    Engine --> Rule4
+
+    Rule1 --> Result{"Resultado de Evaluacion"}
+    Rule2 --> Result
+    Rule3 --> Result
+    Rule4 --> Result
+    Result -->|Aprobado| Pass["RuleResult: Valido (Procede a Reserva)"]
+    Result -->|Rechazado| Fail["RuleResult: Invalido (Error Amigable al Estudiante)"]
+
+    style Engine fill:#3182ce,stroke:#2b6cb0,color:#ffffff
+    style Pass fill:#38a169,stroke:#22543d,color:#ffffff
+    style Fail fill:#e53e3e,stroke:#742a2a,color:#ffffff
 ```
 
 ### 5.1 Atributo de Calidad que Busca Mejorar

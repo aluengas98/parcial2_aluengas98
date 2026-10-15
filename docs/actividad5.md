@@ -71,14 +71,17 @@ Para evitar que la arquitectura se degrade con el tiempo, se establecen tres reg
 El Registro de Decisión Arquitectónica (ADR) es la herramienta fundamental para mantener la memoria técnica y evitar que decisiones críticas se tomen por capricho o moda:
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Propuesto: Desarrollador crea rama y redacta ADR
-    Propuesto --> En_Revision: Pull Request abierto + Notificación al equipo
-    En_Revision --> Aprobado: Aprobación de Lead Architect + Consenso
-    En_Revision --> Rechazado: Si viola restricciones C01-C10
-    Aprobado --> [*]: Fusionado a rama principal
-    Aprobado --> Superado: Cuando un nuevo ADR lo reemplaza
-    Superado --> [*]
+flowchart LR
+    Init((Inicio)) --> Propuesto["Estado: PROPUESTO\n(Desarrollador crea rama y redacta ADR)"]
+    Propuesto -->|"Pull Request abierto"| En_Revision["Estado: EN REVISION\n(Equipo revisa en 48h hábiles)"]
+    En_Revision -->|"Aprobacion Lead Architect"| Aprobado["Estado: APROBADO\n(Fusionado a rama principal)"]
+    En_Revision -->|"Viola restricciones C01-C10"| Rechazado["Estado: RECHAZADO\n(Con justificacion tecnica)"]
+    Aprobado -->|"Nuevo ADR lo reemplaza"| Superado["Estado: SUPERADO\n(Marcado como Superseded)"]
+    Superado --> Archivo["Archivo Historico\n(Nunca se elimina)"]
+
+    style Aprobado fill:#38a169,stroke:#22543d,color:#ffffff
+    style Rechazado fill:#e53e3e,stroke:#742a2a,color:#ffffff
+    style Superado fill:#718096,stroke:#4a5568,color:#ffffff
 ```
 
 ### 3.1 Etapas del Procedimiento
